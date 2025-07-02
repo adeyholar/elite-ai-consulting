@@ -15,7 +15,11 @@
     </header>
     <main>
         <h2>Task ID: {{ task_id }}</h2>
-        <p>Status: Pending (Task processing not yet implemented)</p>
+        <p>Description: {{ task.description }}</p>
+        <p>Status: {{ task.status }}</p>
+        <p>Time: {{ task.time or 'Not specified' }}</p>
+        <p>Priority: {{ task.priority }}</p>
+        <p>Recurring: {{ 'Yes' if task.recurring else 'No' }}</p>
         <a href="/" class="button">Back to Home</a>
     </main>
 </body>
