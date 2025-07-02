@@ -35,7 +35,7 @@ class SupervisorAgent:
         self.shared_memory[task_id]['status'] = task_data['status']
 
         # Send HTML email notification (replace with your recipient email)
-        recipient = "your.recipient.email@example.com"  # Update this line with the actual recipient email
+        recipient = "adecisco_associate@yahoo.com"  # Update this line with the actual recipient email
         subject = f"Task {task_id} Completed: {desc}"
         body = f"Task {task_id} has been completed.\nStatus: {task_data['status']}\nDetails: {task_data['ai_response']}"
         # HTML version of the email
