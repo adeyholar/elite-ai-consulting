@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Request - Elite AI Consulting</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Submit a Task</h1>
+        <nav>
+            <a href="/">Home</a> | <a href="/request">Submit Task</a>
+        </nav>
+    </header>
+    <main>
+        <form method="POST">
+            <label for="description">Task Description:</label><br>
+            <textarea id="description" name="description" required></textarea><br>
+            <label for="time">Time (HH:MM, optional):</label><br>
+            <input type="text" id="time" name="time" placeholder="e.g., 14:30"><br>
+            <label for="priority">Priority (1-5):</label><br>
+            <input type="number" id="priority" name="priority" min="1" max="5" value="1"><br>
+            <label for="recurring">Recurring Task:</label>
+            <input type="checkbox" id="recurring" name="recurring"><br>
+            <button type="submit">Submit Task</button>
+        </form>
+    </main>
+</body>
+</html>
