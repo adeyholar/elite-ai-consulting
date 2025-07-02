@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+from agents.task_agent import TaskAgent
 
 app = Flask(__name__)
 
 # Temporary in-memory task storage (to be replaced with PostgreSQL)
 tasks = {}
+task_agent = TaskAgent()
 
 @app.route('/')
 def index():
@@ -17,23 +19,18 @@ def task_request():
         priority = int(request.form.get('priority', 1))
         recurring = 'recurring' in request.form
 
-        # Generate a unique task ID
+        # Generate task ID and process with task agent
         task_id = f"task_{len(tasks)}"
-        tasks[task_id] = {
-            'description': task_desc,
-            'time': time_str,
-            'priority': priority,
-            'recurring': recurring,
-            'status': 'Pending'
-        }
+        task_data = task_agent.process_task(task_id, task_desc, time_str, priority, recurring)
+        tasks[task_id] = task_data
 
-        # Return JSON for testing (later, we'll redirect or process with agents)
-        return jsonify({'task_id': task_id, 'status': 'Task submitted', 'description': task_desc})
+        # Redirect to status page
+        return redirect(url_for('status', task_id=task_id))
     return render_template('request.html')
 
 @app.route('/status/<task_id>')
 def status(task_id):
-    task = tasks.get(task_id, {'description': 'Not Found', 'status': 'Not Found', 'time': '', 'priority': 1, 'recurring': False})
+    task = tasks.get(task_id, {'description': 'Not Found', 'status': 'Not Found', 'time': '', 'priority': 1, 'recurring': False, 'ai_response': 'Task not found'})
     return render_template('status.html', task_id=task_id, task=task)
 
 @app.route('/tasks')

@@ -20,6 +20,7 @@
         <p>Time: {{ task.time or 'Not specified' }}</p>
         <p>Priority: {{ task.priority }}</p>
         <p>Recurring: {{ 'Yes' if task.recurring else 'No' }}</p>
+        <p>AI Response: {{ task.ai_response }}</p>
         <a href="/" class="button">Back to Home</a>
     </main>
 </body>
