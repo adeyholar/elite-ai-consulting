@@ -25,7 +25,7 @@ def task_request():
         task_data = supervisor.process_task(task_id, task_desc, time_str, priority, recurring)
         tasks[task_id] = task_data
 
-        # Redirect to status page (fixed typo: tak_id -> task_id)
+        # Redirect to status page
         return redirect(url_for('status', task_id=task_id))
     return render_template('request.html')
 
@@ -40,7 +40,8 @@ def list_tasks():
 
 @app.route('/reports/<path:filename>')
 def serve_report(filename):
-    return send_from_directory('reports', filename)
+    # Serve from the reports directory relative to the app root
+    return send_from_directory(os.path.join(app.root_path, 'reports'), filename)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
