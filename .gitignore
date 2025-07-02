@@ -27,3 +27,7 @@ agent_data/
 reports/
 *.pdf
 *.jar
+*.env
+.env
+__pycache__/
+*.pyc

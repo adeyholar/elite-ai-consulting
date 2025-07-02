@@ -1,11 +1,29 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory
 from agents.supervisor import SupervisorAgent
 import os
+from dotenv import load_dotenv
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
-# Temporary in-memory task storage (to be replaced with PostgreSQL)
-tasks = {}
+# Load environment variables from .env file
+load_dotenv()
+
+# Database configuration from environment variables
+DB_CONFIG = {
+    'dbname': os.getenv('DB_NAME'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'host': os.getenv('DB_HOST', 'localhost'),  # Default to localhost if not set
+    'port': os.getenv('DB_PORT', '5432')  # Default to 5432 if not set
+}
+
+def get_db_connection():
+    conn = psycopg2.connect(**DB_CONFIG)  # type: ignore
+    return conn
+
+# Initialize SupervisorAgent
 supervisor = SupervisorAgent()
 
 @app.route('/')
@@ -21,9 +39,16 @@ def task_request():
         recurring = 'recurring' in request.form
 
         # Generate task ID and process with supervisor
-        task_id = f"task_{len(tasks)}"
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("INSERT INTO tasks (description, time, priority, recurring) VALUES (%s, %s, %s, %s) RETURNING id",
+                    (task_desc, time_str, priority, recurring))
+        task_id = f"task_{cur.fetchone()[0]}"
+        conn.commit()
+        cur.close()
+        conn.close()
+
         task_data = supervisor.process_task(task_id, task_desc, time_str, priority, recurring)
-        tasks[task_id] = task_data
 
         # Redirect to status page
         return redirect(url_for('status', task_id=task_id))
@@ -31,11 +56,35 @@ def task_request():
 
 @app.route('/status/<task_id>')
 def status(task_id):
-    task = tasks.get(task_id, {'description': 'Not Found', 'status': 'Not Found', 'time': '', 'priority': 1, 'recurring': False, 'ai_response': 'Task not found'})
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM tasks WHERE id = %s", (int(task_id.replace('task_', '')),))
+    task = cur.fetchone()
+    cur.close()
+    conn.close()
+    if task:
+        task['ai_response'] = supervisor.shared_memory.get(task_id, {}).get('ai_response', 'Task not processed yet')
+        task['status'] = supervisor.shared_memory.get(task_id, {}).get('status', 'Processing')
+        task['generated_at'] = supervisor.shared_memory.get(task_id, {}).get('generated_at', '')
+        task['pdf_path'] = supervisor.shared_memory.get(task_id, {}).get('pdf_path', '')
+    else:
+        task = {'description': 'Not Found', 'status': 'Not Found', 'time': '', 'priority': 1, 'recurring': False, 'ai_response': 'Task not found'}
     return render_template('status.html', task_id=task_id, task=task)
 
 @app.route('/tasks')
 def list_tasks():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT id, description, time, priority, recurring FROM tasks")
+    tasks = cur.fetchall()
+    cur.close()
+    conn.close()
+    for task in tasks:
+        task_id = f"task_{task['id']}"
+        task['ai_response'] = supervisor.shared_memory.get(task_id, {}).get('ai_response', 'Task not processed yet')
+        task['status'] = supervisor.shared_memory.get(task_id, {}).get('status', 'Processing')
+        task['generated_at'] = supervisor.shared_memory.get(task_id, {}).get('generated_at', '')
+        task['pdf_path'] = supervisor.shared_memory.get(task_id, {}).get('pdf_path', '')
     return jsonify(tasks)
 
 @app.route('/reports/<path:filename>')

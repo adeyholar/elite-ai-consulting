@@ -23,11 +23,16 @@ A professional AI-powered consulting platform built with Flask, Ollama, and a mu
    pip install -r requirements.txt
    ```
 
-3. **Install Native Ollama**:
+3. **Install Native Ollama and Configure Database**:
    - Install Ollama natively on `D:\AI\Models\Ollama` using the downloaded installer.
    - Set environment variable: `OLLAMA_MODELS=D:\VM\OllamaModels`.
+   - Set environment variable: `EMAIL_PASSWORD=<your-app-password>` (store securely, e.g., in Conda activate script).
+   - Run Dockerized PostgreSQL: `docker run -d --name postgres -e POSTGRES_USER=your_username -e POSTGRES_PASSWORD=your_password -e POSTGRES_DB=elite_ai_consulting -p 5432:5432 postgres:latest`.
+   - Create tasks table: Connect to the container (`docker exec -it postgres psql -U your_username -d elite_ai_consulting`) and run `CREATE TABLE tasks (...)`.
    - Pull models: `D:\AI\Models\Ollama\ollama.exe pull llama3.2:latest`.
    - Run Ollama: `D:\AI\Models\Ollama\ollama.exe run llama3.2:latest`.
+   3. **Install Native Ollama and Configure Database**:
+   - Create a `.env` file in the project root with:
 
 4. **Run Flask App**:
    ```bash
@@ -67,3 +72,4 @@ elite-ai-consulting/
 - Implement email client for task, blog, and report notifications (Lesson 7).
 - Add PostgreSQL for task persistence (Lesson 10).
 - Deploy to cloud (Lesson 15).
+
