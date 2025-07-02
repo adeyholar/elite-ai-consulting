@@ -4,8 +4,9 @@ A professional AI-powered consulting platform built with Flask, Ollama, and a mu
 
 ## Features
 - **Web Interface**: Client-facing portal for task submission and status tracking (Flask-based).
-- **Multi-Agent System**: Supervisor and task agents process tasks using `llama3.2:latest` and `llama3.3:70b`.
-- **Local LLM Integration**: Uses Ollama for AI-driven responses with GPU acceleration.
+- **Multi-Agent System**: Supervisor, task, blog, and report agents process tasks using `llama3.2:latest` for efficiency.
+- **Local LLM Integration**: Uses native Ollama installation on `D:\AI\Models\Ollama` with GPU acceleration (RTX 4060).
+- **PDF Generation**: Generates professional PDF reports for tasks and analyses.
 - **Scalable Architecture**: Designed for future PostgreSQL integration and cloud deployment.
 
 ## Setup
@@ -22,12 +23,11 @@ A professional AI-powered consulting platform built with Flask, Ollama, and a mu
    pip install -r requirements.txt
    ```
 
-3. **Run Ollama**:
-   ```bash
-   docker run -d -p 11434:11434 --name ollama --gpus all ollama/ollama
-   docker exec ollama ollama pull llama3.2:latest
-   docker exec ollama ollama run llama3.2:latest
-   ```
+3. **Install Native Ollama**:
+   - Install Ollama natively on `D:\AI\Models\Ollama` using the downloaded installer.
+   - Set environment variable: `OLLAMA_MODELS=D:\VM\OllamaModels`.
+   - Pull models: `D:\AI\Models\Ollama\ollama.exe pull llama3.2:latest`.
+   - Run Ollama: `D:\AI\Models\Ollama\ollama.exe run llama3.2:latest`.
 
 4. **Run Flask App**:
    ```bash
@@ -36,8 +36,9 @@ A professional AI-powered consulting platform built with Flask, Ollama, and a mu
    - Visit `http://localhost:5000` to access the web interface.
 
 ## Usage
-- **Submit Tasks**: Go to `/request` to submit tasks (e.g., “Plan a meeting” or “Generate a blog post”).
+- **Submit Tasks**: Go to `/request` to submit tasks (e.g., “Plan a meeting”, “Generate a blog post”, “Generate a report on productivity”).
 - **View Status**: Check task details at `/status/<task_id>`.
+- **Download Reports**: Click “Download Report” for PDF files.
 - **List Tasks**: View all tasks at `/tasks` (JSON).
 
 ## Project Structure
@@ -46,8 +47,11 @@ elite-ai-consulting/
 ├── agents/
 │   ├── supervisor.py
 │   ├── task_agent.py
+│   ├── blog_agent.py
+│   ├── report_agent.py
 ├── services/
 │   ├── ollama_client.py
+│   ├── pdf_generator.py
 ├── templates/
 │   ├── index.html
 │   ├── request.html
@@ -60,6 +64,6 @@ elite-ai-consulting/
 ```
 
 ## Next Steps
-- Implement blog and report agents (Lessons 6-7).
+- Implement email client for task, blog, and report notifications (Lesson 7).
 - Add PostgreSQL for task persistence (Lesson 10).
 - Deploy to cloud (Lesson 15).
