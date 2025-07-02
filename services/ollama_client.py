@@ -5,7 +5,7 @@ class OllamaClient:
     def __init__(self):
         self.api_url = OLLAMA_API_URL
 
-    def generate(self, prompt, model="llama3.3:70b", timeout=60):
+    def generate(self, prompt, model="llama3.3:70b", timeout=120):
         """
         Send a prompt to the specified Ollama model and return the response.
         """

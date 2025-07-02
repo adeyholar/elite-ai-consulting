@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory
 from agents.supervisor import SupervisorAgent
+import os
 
 app = Flask(__name__)
 
@@ -24,7 +25,7 @@ def task_request():
         task_data = supervisor.process_task(task_id, task_desc, time_str, priority, recurring)
         tasks[task_id] = task_data
 
-        # Redirect to status page
+        # Redirect to status page (fixed typo: tak_id -> task_id)
         return redirect(url_for('status', task_id=task_id))
     return render_template('request.html')
 
@@ -36,6 +37,10 @@ def status(task_id):
 @app.route('/tasks')
 def list_tasks():
     return jsonify(tasks)
+
+@app.route('/reports/<path:filename>')
+def serve_report(filename):
+    return send_from_directory('reports', filename)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

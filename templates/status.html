@@ -21,6 +21,12 @@
         <p>Priority: {{ task.priority }}</p>
         <p>Recurring: {{ 'Yes' if task.recurring else 'No' }}</p>
         <p>AI Response: {{ task.ai_response }}</p>
+        {% if task.generated_at %}
+        <p>Generated At: {{ task.generated_at }}</p>
+        {% endif %}
+        {% if task.pdf_path %}
+        <p><a href="/reports/{{ task.pdf_path | replace('\\', '/') }}" target="_blank">Download Report</a></p>
+        {% endif %}
         <a href="/" class="button">Back to Home</a>
     </main>
 </body>
