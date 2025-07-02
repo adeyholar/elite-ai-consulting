@@ -34,12 +34,25 @@ class SupervisorAgent:
         self.shared_memory[task_id].update(task_data)
         self.shared_memory[task_id]['status'] = task_data['status']
 
-        # Send email notification (replace with your recipient email)
-        recipient = "adecisco_associate@yahoo.com"  # Update this line with the actual recipient email
+        # Send HTML email notification (replace with your recipient email)
+        recipient = "your.recipient.email@example.com"  # Update this line with the actual recipient email
         subject = f"Task {task_id} Completed: {desc}"
         body = f"Task {task_id} has been completed.\nStatus: {task_data['status']}\nDetails: {task_data['ai_response']}"
+        # HTML version of the email
+        html_body = f"""
+        <html>
+          <body>
+            <h2>Task Completion Notification</h2>
+            <p><strong>Task ID:</strong> {task_id}</p>
+            <p><strong>Description:</strong> {desc}</p>
+            <p><strong>Status:</strong> {task_data['status']}</p>
+            <p><strong>Details:</strong> {task_data['ai_response']}</p>
+            <p>This is an automated message from Elite AI Consulting.</p>
+          </body>
+        </html>
+        """
         attachment = task_data.get('pdf_path') if 'pdf_path' in task_data else None
-        email_status = self.email_client.send_email(recipient, subject, body, attachment)
+        email_status = self.email_client.send_email(recipient, subject, body, attachment, html_body)
         print(f"Email status: {email_status}")
 
         return task_data
