@@ -22,3 +22,7 @@ conda-meta/
 # Misc
 *.log
 *.DS_Store
+# Project-specific
+agent_data/
+reports/
+*.pdf
