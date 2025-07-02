@@ -1,17 +1,19 @@
 from agents.task_agent import TaskAgent
 from agents.blog_agent import BlogAgent
 from agents.report_agent import ReportAgent
+from services.email_client import EmailClient
 
 class SupervisorAgent:
     def __init__(self):
         self.task_agent = TaskAgent()
         self.blog_agent = BlogAgent()
         self.report_agent = ReportAgent()
+        self.email_client = EmailClient()  # Initialize with your email credentials
         self.shared_memory = {}  # Shared context for agents
 
     def process_task(self, task_id, desc, time_str, priority, recurring):
         """
-        Route task to appropriate agent based on description.
+        Route task to appropriate agent based on description and send email notification.
         """
         self.shared_memory[task_id] = {
             'description': desc,
@@ -31,4 +33,13 @@ class SupervisorAgent:
 
         self.shared_memory[task_id].update(task_data)
         self.shared_memory[task_id]['status'] = task_data['status']
+
+        # Send email notification (replace with your recipient email)
+        recipient = "adecisco_associate@yahoo.com"  # Update this line with the actual recipient email
+        subject = f"Task {task_id} Completed: {desc}"
+        body = f"Task {task_id} has been completed.\nStatus: {task_data['status']}\nDetails: {task_data['ai_response']}"
+        attachment = task_data.get('pdf_path') if 'pdf_path' in task_data else None
+        email_status = self.email_client.send_email(recipient, subject, body, attachment)
+        print(f"Email status: {email_status}")
+
         return task_data

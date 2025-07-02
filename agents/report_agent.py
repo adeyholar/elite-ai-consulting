@@ -1,6 +1,7 @@
 from services.ollama_client import OllamaClient
 from services.pdf_generator import PDFGenerator
 from datetime import datetime
+import os
 
 class ReportAgent:
     def __init__(self):
@@ -16,12 +17,14 @@ class ReportAgent:
         title = f"Report for Task {task_id}: {desc}"
         # Ensure content has proper line breaks
         content = f"Task ID: {task_id}\nDescription: {desc}\n\nAnalysis:\n{analysis}"
-        output_path = f"task_{task_id}.pdf"  # Relative path, will be prefixed with 'reports/'
+        output_path = os.path.join(os.path.dirname(__file__), '..', 'reports', f"task_{task_id}.pdf")  # Absolute path relative to project root
         pdf_path = self.pdf_generator.create_pdf(content, output_path, title)
+        # Convert to absolute path for email attachment
+        absolute_pdf_path = os.path.abspath(pdf_path)
         return {
             'description': desc,
             'status': 'Completed',
             'ai_response': f"Report generated and saved as {pdf_path}",
             'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M'),
-            'pdf_path': pdf_path
+            'pdf_path': absolute_pdf_path  # Return absolute path
         }
