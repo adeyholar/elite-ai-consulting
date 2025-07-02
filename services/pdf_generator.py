@@ -10,8 +10,7 @@ class PDFGenerator:
         """
         Generate a PDF report with the given content and title, cleaning formatting artifacts.
         """
-        # Ensure output_path is relative to the reports directory
-        output_path = os.path.join('reports', output_path)
+        # Use the provided output_path directly (already includes 'reports/' from report_agent.py)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         doc = SimpleDocTemplate(output_path, pagesize=letter)
         styles = getSampleStyleSheet()
@@ -26,5 +25,9 @@ class PDFGenerator:
             story.append(Paragraph(paragraph, styles["Normal"]))
             story.append(Spacer(1, 12))
 
-        doc.build(story)
-        return os.path.relpath(output_path, start=os.path.dirname(__file__)).replace(os.sep, '/')
+        try:
+            doc.build(story)
+            return output_path
+        except Exception as e:
+            print(f"Error building PDF: {e}")
+            return None

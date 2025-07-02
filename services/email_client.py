@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class EmailClient:
-    def __init__(self, smtp_server="smtp.gmail.com", smtp_port=587, sender_email="adengongo", password="djrnrlbzzsmultwx"):
+    def __init__(self, smtp_server="smtp.gmail.com", smtp_port=587, sender_email="adengongo@gmail.com", password="djrnrlbzzsmultwx"):
         """
         Initialize email client with SMTP settings.
         Replace sender_email and password with your Gmail credentials (use an App Password for security).

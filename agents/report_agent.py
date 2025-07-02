@@ -8,7 +8,7 @@ class ReportAgent:
         self.ollama_client = OllamaClient()
         self.pdf_generator = PDFGenerator()
 
-    def generate_report(self, task_id, desc):
+    def generate_report(self, task_id: str, desc: str) -> dict:
         """
         Generate a report with AI analysis and save as PDF.
         """
@@ -19,6 +19,14 @@ class ReportAgent:
         content = f"Task ID: {task_id}\nDescription: {desc}\n\nAnalysis:\n{analysis}"
         output_path = os.path.join(os.path.dirname(__file__), '..', 'reports', f"task_{task_id}.pdf")  # Absolute path relative to project root
         pdf_path = self.pdf_generator.create_pdf(content, output_path, title)
+        if pdf_path is None:
+            return {
+                'description': desc,
+                'status': 'Failed',
+                'ai_response': f"Failed to generate report for task {task_id}",
+                'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M'),
+                'pdf_path': None
+            }
         # Convert to absolute path for email attachment
         absolute_pdf_path = os.path.abspath(pdf_path)
         return {
