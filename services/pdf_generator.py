@@ -3,11 +3,12 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 import os
+import re
 
 class PDFGenerator:
     def create_pdf(self, content, output_path, title):
         """
-        Generate a PDF report with the given content and title.
+        Generate a PDF report with the given content and title, cleaning formatting artifacts.
         """
         # Ensure output_path is relative to the reports directory
         output_path = os.path.join('reports', output_path)
@@ -18,8 +19,9 @@ class PDFGenerator:
 
         story.append(Paragraph(title, styles["Title"]))
         story.append(Spacer(1, 12))
-        # Split content into paragraphs and handle empty lines
-        paragraphs = [p.strip() for p in content.split("\n") if p.strip()]
+        # Clean content (remove extra quotes, "lnn", excessive asterisks) and split into paragraphs
+        cleaned_content = re.sub(r'["\']|lnn|\*+', '', content)  # Remove quotes, "lnn", asterisks
+        paragraphs = [p.strip() for p in cleaned_content.split("\n\n") if p.strip()]
         for paragraph in paragraphs:
             story.append(Paragraph(paragraph, styles["Normal"]))
             story.append(Spacer(1, 12))

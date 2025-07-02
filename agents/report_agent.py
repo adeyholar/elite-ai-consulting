@@ -11,8 +11,8 @@ class ReportAgent:
         """
         Generate a report with AI analysis and save as PDF.
         """
-        prompt = f"Provide a detailed analysis for the task: '{desc}'. Return the response with clear paragraphs separated by double newlines (\\n\\n)."
-        analysis = self.ollama_client.generate(prompt, model="llama3.3:70b")
+        prompt = f"Provide a concise 200-300 word analysis for the task: '{desc}'. Return the response with clear paragraphs separated by double newlines (\\n\\n), avoiding excessive quotes or artifacts."
+        analysis = self.ollama_client.generate(prompt, model="llama3.2:latest")
         title = f"Report for Task {task_id}: {desc}"
         # Ensure content has proper line breaks
         content = f"Task ID: {task_id}\nDescription: {desc}\n\nAnalysis:\n{analysis}"
