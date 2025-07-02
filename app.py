@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
-from agents.task_agent import TaskAgent
+from agents.supervisor import SupervisorAgent
 
 app = Flask(__name__)
 
 # Temporary in-memory task storage (to be replaced with PostgreSQL)
 tasks = {}
-task_agent = TaskAgent()
+supervisor = SupervisorAgent()
 
 @app.route('/')
 def index():
@@ -19,9 +19,9 @@ def task_request():
         priority = int(request.form.get('priority', 1))
         recurring = 'recurring' in request.form
 
-        # Generate task ID and process with task agent
+        # Generate task ID and process with supervisor
         task_id = f"task_{len(tasks)}"
-        task_data = task_agent.process_task(task_id, task_desc, time_str, priority, recurring)
+        task_data = supervisor.process_task(task_id, task_desc, time_str, priority, recurring)
         tasks[task_id] = task_data
 
         # Redirect to status page
