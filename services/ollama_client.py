@@ -1,23 +1,32 @@
 import requests
-from config import OLLAMA_API_URL
+import json
+import time
 
 class OllamaClient:
-    def __init__(self):
-        self.api_url = OLLAMA_API_URL
+    def __init__(self, host="http://ollama:11434", timeout=60):
+        self.host = host
+        self.timeout = timeout
 
-    def generate(self, prompt, model="llama3.2:latest", timeout=900):
-        """
-        Send a prompt to the specified Ollama model and return the response.
-        Increased timeout to handle detailed analysis.
-        """
+    def generate(self, prompt, model="llama3.2:latest"):
+        url = f"{self.host}/api/chat"  # Changed from /api/generate to /api/chat
+        payload = {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],  # Adjusted for chat API format
+            "stream": False
+        }
         try:
-            payload = {
-                "model": model,
-                "prompt": prompt,
-                "stream": False
-            }
-            response = requests.post(self.api_url, json=payload, timeout=timeout)
+            response = requests.post(url, json=payload, timeout=self.timeout)
             response.raise_for_status()
-            return response.json().get("response", "Error: No response from model")
+            result = response.json()
+            return result.get("message", {}).get("content", "No response from Ollama")
         except requests.RequestException as e:
-            return f"Error generating response: {e}"
+            return f"Error connecting to Ollama: {str(e)}"
+
+    def list_models(self):
+        url = f"{self.host}/api/tags"
+        try:
+            response = requests.get(url, timeout=self.timeout)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            return f"Error listing models: {str(e)}"

@@ -14,10 +14,11 @@ class ReportAgent:
         """
         prompt = f"Provide a concise 200-300 word analysis for the task: '{desc}'. Return the response with clear paragraphs separated by double newlines (\\n\\n), avoiding excessive quotes or artifacts."
         analysis = self.ollama_client.generate(prompt, model="llama3.2:latest")
+        if "Error" in analysis:
+            analysis = "Failed to generate AI analysis due to Ollama error."
         title = f"Report for Task {task_id}: {desc}"
-        # Ensure content has proper line breaks
         content = f"Task ID: {task_id}\nDescription: {desc}\n\nAnalysis:\n{analysis}"
-        output_path = os.path.join(os.path.dirname(__file__), '..', 'reports', f"task_{task_id}.pdf")  # Absolute path relative to project root
+        output_path = os.path.join(os.path.dirname(__file__), '..', 'reports', f"task_{task_id}.pdf")
         pdf_path = self.pdf_generator.create_pdf(content, output_path, title)
         if pdf_path is None:
             return {
@@ -27,12 +28,11 @@ class ReportAgent:
                 'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M'),
                 'pdf_path': None
             }
-        # Convert to absolute path for email attachment
         absolute_pdf_path = os.path.abspath(pdf_path)
         return {
             'description': desc,
             'status': 'Completed',
-            'ai_response': f"Report generated and saved as {pdf_path}",
+            'ai_response': analysis,
             'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M'),
-            'pdf_path': absolute_pdf_path  # Return absolute path
+            'pdf_path': absolute_pdf_path
         }

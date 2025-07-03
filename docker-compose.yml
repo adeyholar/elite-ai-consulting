@@ -1,0 +1,49 @@
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    command: sh -c "sleep 10 && python app.py"
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME} -h 0.0.0.0"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    command: ["postgres", "-c", "listen_addresses=*", "-c", "port=5432"]
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11435:11434"  # Host port 11435 to avoid local conflict
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_MODELS=${OLLAMA_MODELS}
+    entrypoint: ["sh", "-c", "ollama serve"]
+    # Optional: Add model load (manual pull recommended for now)
+    # command: ["sh", "-c", "ollama load llama3.2:latest || true && ollama serve"]
+
+volumes:
+  pgdata:
+  ollama_data:
